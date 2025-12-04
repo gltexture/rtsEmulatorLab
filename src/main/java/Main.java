@@ -13,7 +13,7 @@ public class Main {
     private void initUI() throws InterruptedException {
         JFrame frame = new JFrame("Emulation Power Control System");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(800, 560);
+        frame.setSize(600, 460);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
 
@@ -138,6 +138,10 @@ public class Main {
         final int warn_below = 32686;
         final int crit_below = 32653;
 
+        final int maxStepWith250 = (int) 7300 / 250;
+        final int incPerStep = (int) Math.ceil((double) 55 / maxStepWith250);
+
+        int stepsAlarm = 0;
         while (true) {
             final int A = sliderCurrent.getValue();
             final float U = (A * uConvC);
@@ -183,14 +187,16 @@ public class Main {
             if ((CRIT_ABOVE || CRIT_BELOW) && sec < 50) {
                 if (sec < 45) {
                     if (alarmCode < alarmMax) {
-                        alarmCode += 1;
-                        Thread.sleep(132);
+                        alarmCode += (stepsAlarm++ <= 22) ? 2 : 1;
+                        Thread.sleep(250);
                     }
                 } else {
+                    stepsAlarm = 0;
                     alarmCode = 0;
                 }
                 START.set(true);
             } else {
+                stepsAlarm = 0;
                 secondsTime.set(0);
                 milliSecondsTime.set(0);
                 alarmCode = 0;
@@ -208,7 +214,7 @@ public class Main {
             DACOutput.setText("DAC Voltage Output: " + alarmVoltage + " V");
             SECONDS.setText("Alarm Activity (Sec): " + (sec + "," + milliSec));
 
-            if (oldMs != milliSec && sec <= 8) {
+            if (oldMs != milliSec && sec <= 8 && milliSec != 10) {
                 System.out.println("SEC " + (sec + "," + milliSec) + ". ALARM_VOLT = " + alarmVoltage);
             }
             oldMs = milliSec;
