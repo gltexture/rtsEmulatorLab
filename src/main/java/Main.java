@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -7,6 +8,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
     public Main() throws InterruptedException {
+        /*
+        final float want = 625000000 - 311;
+        float res = 0;
+        float bestRes = 0;
+
+        int x = 0;
+        int y = 0;
+        int z = 0;
+
+        L0:
+        for (x = 1000; x < Short.MAX_VALUE; x++) {
+            for (y = 1000; y < Short.MAX_VALUE; y++) {
+                for (z = 1000; z < Short.MAX_VALUE; z++) {
+                    res = ((29 * y) + 21) * x + (20 * z) + 20 + 8 + 9 + 36;
+                    if (res >= want) {
+                        break L0;
+                    }
+                }
+            }
+        }
+        DecimalFormat df = new DecimalFormat("#");
+        System.out.println(x + " " + y + " " + z + " = " + df.format(res));
+         */
+
         this.initUI();
     }
 
@@ -141,6 +166,10 @@ public class Main {
         final int maxStepWith250 = (int) 7300 / 250;
         final int incPerStep = (int) Math.ceil((double) 55 / maxStepWith250);
 
+        final int sec180 = 180;
+        final int sec200 = 200;
+
+        int iterations = 0;
         int stepsAlarm = 0;
         while (true) {
             final int A = sliderCurrent.getValue();
@@ -184,18 +213,21 @@ public class Main {
                 CRIT_B_LAMP.setForeground(Color.BLACK);
             }
 
-            if ((CRIT_ABOVE || CRIT_BELOW) && sec < 50) {
-                if (sec < 45) {
+            System.out.println(iterations);
+            if ((CRIT_ABOVE || CRIT_BELOW) && iterations < sec200) {
+                if (iterations < sec180) {
                     if (alarmCode < alarmMax) {
                         alarmCode += (stepsAlarm++ <= 22) ? 2 : 1;
-                        Thread.sleep(250);
                     }
                 } else {
                     stepsAlarm = 0;
                     alarmCode = 0;
                 }
+                Thread.sleep(250);
                 START.set(true);
+                iterations += 1;
             } else {
+                iterations = 0;
                 stepsAlarm = 0;
                 secondsTime.set(0);
                 milliSecondsTime.set(0);
